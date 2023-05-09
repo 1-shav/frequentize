@@ -11,6 +11,7 @@ class Pixela():
         self.headers = {
             "X-USER-TOKEN": self.token
         }
+        self.graph_class = self.Graph()
 
 
     def retry(self, function):
@@ -50,21 +51,62 @@ class Pixela():
 
 
 
+    class Graph():
+
+        def __init__(self):
+            self.graph_id = input("Enter graph id :: ")
+            self.graph_name = input("Enter graph name :: ")
+            self.graph_unit = input("Enter graph unit :: ")
+            self.graph_type = input("Enter graph type :: ")
+            self.graph_color = input("Enter graph color [shibafu (green),\n momiji (red),\n sora (blue),\n ichou (yellow),\n ajisai (purple)\n and kuro (black)] :: ")
+
+
+        def graph_create(self):
+            graph_params = {
+                "id": self.graph_id,
+                "name": self.graph_name,
+                "unit": self.graph_unit,
+                "type": self.graph_type,
+                "color": self.graph_color
+            }
+            response = rq.post(url=f"{self.pixela_endpoint}/{self.username}/graphs", json=graph_params, headers=self.headers)
+
+            if response.json()["isSuccess"]:
+                print(f"~GRAPH CREATED SUCCESSFULLY~\n\tGRAPH WEBPAGE :: https://pixe.la/@{self.username}/graphs/{self.graph_id}")
+            else:
+                if response.json()["message"].startswith("Please retry this request."):
+                    print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
+                    self.retry(self.graph_create)
+                else:
+                    print(f"~GRAPH CREATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
+
+
+
+
+
+
+
 
 
 
 if __name__ == "__main__":
     available_fns = {
         "1": "user_create",
-        "2": "user_delete"
+        "2": "user_delete",
+        "3": "graph_create"
     }
     pixela = Pixela()
+    # graph = Graph()
     print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
     while True:
         wanna = input("What wanna do user? :: ")
         if wanna == "exit":
             break
         elif (fnc:=available_fns.get(wanna, "null"))!="null":
-            getattr(pixela, fnc)()
+            if getattr(pixela, fnc, "nill") != "nill":
+                getattr(pixela, fnc)()
+            else:
+                getattr(pixela.graph_class, fnc)()
+
         else:
             print("~INVALID INPUT~")
