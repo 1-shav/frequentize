@@ -99,6 +99,22 @@ class Pixela():
             print(f"~GRAPH SVG CREATED SUCCESSFULLY~\n\tGRAPH SVG FILE :: {self.graph_id}.svg")
 
 
+    def graph_delete(self):
+        self.graph_init()
+
+        response = rq.delete(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}", headers=self.headers)
+
+        if response.json()["isSuccess"]:
+            print(f"~GRAPH DELETED SUCCESSFULLY~")
+        else:
+            if response.json()["message"].startswith("Please retry this request."):
+                print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
+                self.retry(self.graph_create)
+            else:
+                print(f"~GRAPH DELETION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
+
+
+
 # class Graph():
 
 #     def __init__(self):
@@ -142,12 +158,13 @@ if __name__ == "__main__":
         "1": "user_create",
         "2": "user_delete",
         "3": "graph_create",
-        "4": "graph_get_svg"
+        "4": "graph_get_svg", 
+        "5": "graph_delete"
     }
     pixela = Pixela()
     # graph = Graph()
-    print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
     while True:
+        print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
         wanna = input("What wanna do user? :: ")
         if wanna == "exit":
             break
