@@ -11,6 +11,7 @@ class Pixela():
         self.headers = {
             "X-USER-TOKEN": self.token
         }
+        self.graph_inited = False
 
 
     def retry(self, function):
@@ -50,14 +51,16 @@ class Pixela():
 
 
     def graph_init(self):
-        self.graph_id = input("Enter graph id :: ")
-        self.graph_name = input("Enter graph name :: ")
-        self.graph_unit = input("Enter graph unit :: ")
-        self.graph_type = input("Enter graph type :: ")
-        self.graph_color = input("Enter graph color [shibafu (green),\n \
-                                 momiji (red),\n sora (blue),\n \
-                                 ichou (yellow),\n ajisai (purple)\n and kuro (black)] :: ")
-    
+        if not self.graph_inited:
+            self.graph_id = input("Enter graph id :: ")
+            self.graph_name = input("Enter graph name :: ")
+            self.graph_unit = input("Enter graph unit :: ")
+            self.graph_type = input("Enter graph type :: ")
+            self.graph_color = input("Enter graph color [shibafu (green),\n \
+                                    momiji (red),\n sora (blue),\n \
+                                    ichou (yellow),\n ajisai (purple)\n and kuro (black)] :: ")
+            self.graph_inited = True
+        
 
     def graph_create(self):
         self.graph_init()
@@ -71,14 +74,30 @@ class Pixela():
         response = rq.post(url=f"{self.pixela_endpoint}/{self.username}/graphs", json=graph_params, headers=self.headers)
 
         if response.json()["isSuccess"]:
-            print(f"~GRAPH CREATED SUCCESSFULLY~\n\tGRAPH WEBPAGE :: {self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}")
+            print(f"~GRAPH CREATED SUCCESSFULLY~\n\tGRAPH WEBPAGE :: {self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}.html")
         else:
             if response.json()["message"].startswith("Please retry this request."):
                 print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
                 self.retry(self.graph_create)
             else:
                 print(f"~GRAPH CREATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
+
+
+    def graph_get_svg(self):
+        self.graph_init()
+        svg_params = {
+            "appearance": "dark"
+        }
+        response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}.svg", params=svg_params)
+
+        if response.status_code == 200:
+            svg_content = response.content
+
+            with open(f"{self.graph_id}.svg", "wb") as file:
+                file.write(svg_content)
         
+            print(f"~GRAPH SVG CREATED SUCCESSFULLY~\n\tGRAPH SVG FILE :: {self.graph_id}.svg")
+
 
 # class Graph():
 
@@ -122,7 +141,8 @@ if __name__ == "__main__":
     available_fns = {
         "1": "user_create",
         "2": "user_delete",
-        "3": "graph_create"
+        "3": "graph_create",
+        "4": "graph_get_svg"
     }
     pixela = Pixela()
     # graph = Graph()
