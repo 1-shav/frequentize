@@ -114,6 +114,15 @@ class Pixela():
                 print(f"~GRAPH DELETION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
 
+    def graph_get_stats(self):
+        response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/stats")
+
+        if response.status_code == 200:
+            print(f"~GRAPH STATS SUCCESSFULLY FOUND~\n\tGRAPH STATS :: {response.json()}")
+        else:
+            print(f"~GRAPH STATS NOT FOUND~\n\tERROR MESSAGE :: {response.json()['message']}")
+
+
 
 # class Graph():
 
@@ -158,16 +167,19 @@ if __name__ == "__main__":
         "1": "user_create",
         "2": "user_delete",
         "3": "graph_create",
-        "4": "graph_get_svg", 
-        "5": "graph_delete"
+        "4": "graph_get_svg",
+        "5": "graph_get_stats", 
+        "6": "graph_delete"
     }
     pixela = Pixela()
     # graph = Graph()
+    print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
     while True:
-        print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
         wanna = input("What wanna do user? :: ")
         if wanna == "exit":
             break
+        elif wanna in ["fns", "show fns", "available fns", "get_fns"]:
+            print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
         elif (fnc:=available_fns.get(wanna, "null"))!="null":
             getattr(pixela, fnc)()
         else:
