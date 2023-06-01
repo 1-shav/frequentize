@@ -123,42 +123,25 @@ class Pixela():
             print(f"~GRAPH STATS NOT FOUND~\n\tERROR MESSAGE :: {response.json()['message']}")
 
 
+    def pixel_update(self):
+        self.graph_init()
+        date = input("Enter date [dd-mm-yyyy] :: ")
+        date_obj = datetime.strptime(date, "%d-%m-%Y")
+        formatted_date = date_obj.strftime("%Y%m%d")
 
-# class Graph():
-
-#     def __init__(self):
-#         self.graph_id = input("Enter graph id :: ")
-#         self.graph_name = input("Enter graph name :: ")
-#         self.graph_unit = input("Enter graph unit :: ")
-#         self.graph_type = input("Enter graph type :: ")
-#         self.graph_color = input("Enter graph color [shibafu (green),\n momiji (red),\n sora (blue),\n ichou (yellow),\n ajisai (purple)\n and kuro (black)] :: ")
-
-
-#     def graph_create(self):
-#         graph_params = {
-#             "id": self.graph_id,
-#             "name": self.graph_name,
-#             "unit": self.graph_unit,
-#             "type": self.graph_type,
-#             "color": self.graph_color
-#         }
-#         response = rq.post(url=f"{self.pixela_endpoint}/{self.username}/graphs", json=graph_params, headers=self.headers)
-
-#         if response.json()["isSuccess"]:
-#             print(f"~GRAPH CREATED SUCCESSFULLY~\n\tGRAPH WEBPAGE :: https://pixe.la/@{self.username}/graphs/{self.graph_id}")
-#         else:
-#             if response.json()["message"].startswith("Please retry this request."):
-#                 print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
-#                 self.retry(self.graph_create)
-#             else:
-#                 print(f"~GRAPH CREATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
-
-
-
-
-
-
-
+        pixel_data = {
+            "quantity": input("pixel quantity :: ")
+        }
+        response = rq.put(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/{formatted_date}", json=pixel_data, headers=self.headers)
+        
+        if response.json()["isSuccess"]:
+            print(f"~PIXEL UPDATED SUCCESSFULLY~")
+        else:
+            if response.json()["message"].startswith("Please retry this request."):
+                print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
+                self.retry(self.pixel_update)
+            else:
+                print(f"~PIXEL UPDATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
 
 
@@ -168,8 +151,9 @@ if __name__ == "__main__":
         "2": "user_delete",
         "3": "graph_create",
         "4": "graph_get_svg",
-        "5": "graph_get_stats", 
-        "6": "graph_delete"
+        "5": "graph_get_stats",
+        "6": "graph_delete", 
+        "7": "pixel_update"
     }
     pixela = Pixela()
     # graph = Graph()
