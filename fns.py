@@ -109,7 +109,7 @@ class Pixela():
         else:
             if response.json()["message"].startswith("Please retry this request."):
                 print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
-                self.retry(self.graph_create)
+                self.retry(self.graph_delete)
             else:
                 print(f"~GRAPH DELETION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
@@ -143,6 +143,24 @@ class Pixela():
             else:
                 print(f"~PIXEL UPDATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
+        
+    def pixel_delete(self):
+        self.graph_init()
+        date = input("Enter date [dd-mm-yyyy] :: ")
+        date_obj = datetime.strptime(date, "%d-%m-%Y")
+        formatted_date = date_obj.strftime("%Y%m%d")
+
+        response = rq.delete(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/{formatted_date}", headers=self.headers)
+        
+        if response.json()["isSuccess"]:
+            print(f"~PIXEL UPDATED SUCCESSFULLY~")
+        else:
+            if response.json()["message"].startswith("Please retry this request."):
+                print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
+                self.retry(self.pixel_delete)
+            else:
+                print(f"~PIXEL DELETION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
+
 
 
 if __name__ == "__main__":
@@ -153,7 +171,8 @@ if __name__ == "__main__":
         "4": "graph_get_svg",
         "5": "graph_get_stats",
         "6": "graph_delete", 
-        "7": "pixel_update"
+        "7": "pixel_update",
+        "8": "pixel_delete"
     }
     pixela = Pixela()
     # graph = Graph()
