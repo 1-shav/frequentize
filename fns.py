@@ -56,9 +56,9 @@ class Pixela():
             self.graph_name = input("Enter graph name :: ")
             self.graph_unit = input("Enter graph unit :: ")
             self.graph_type = input("Enter graph type :: ")
-            self.graph_color = input("Enter graph color [shibafu (green),\n \
-                                    momiji (red),\n sora (blue),\n \
-                                    ichou (yellow),\n ajisai (purple)\n and kuro (black)] :: ")
+            self.graph_color = input("Enter graph color\n\t[shibafu (green), \
+momiji (red), sora (blue),\n\t \
+ichou (yellow), ajisai (purple) and kuro (black)] :: ")
             self.graph_inited = True
         
 
@@ -115,6 +115,8 @@ class Pixela():
 
 
     def graph_get_stats(self):
+        self.graph_init()
+
         response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/stats")
 
         if response.status_code == 200:
@@ -143,6 +145,23 @@ class Pixela():
             else:
                 print(f"~PIXEL UPDATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
+
+    def pixel_add(self):
+        self.graph_init()
+        pixel_data = {
+            "quantity": input("pixel quantity :: ")
+        }
+        response = rq.put(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/add", json=pixel_data, headers=self.headers)
+        
+        if response.json()["isSuccess"]:
+            print(f"~PIXEL UPDATED SUCCESSFULLY~")
+        else:
+            if response.json()["message"].startswith("Please retry this request."):
+                print(f"~RETRYING REQUEST~\n\tERROR MESSAGE :: {response.json()['message']}")
+                self.retry(self.pixel_add)
+            else:
+                print(f"~PIXEL UPDATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
+        
         
     def pixel_delete(self):
         self.graph_init()
@@ -172,7 +191,8 @@ if __name__ == "__main__":
         "5": "graph_get_stats",
         "6": "graph_delete", 
         "7": "pixel_update",
-        "8": "pixel_delete"
+        "8": "pixel_add",
+        "9": "pixel_delete"
     }
     pixela = Pixela()
     # graph = Graph()
