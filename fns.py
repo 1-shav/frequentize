@@ -13,6 +13,7 @@ class Pixela():
             self.graph_unit = "gilgges"
             self.graph_type = "int"
             self.graph_color = "ajisai"
+            self.graph_timezone = "Asia/Kolkata"
             self.graph_inited = True
         else:
             self.username = input("Enter your username :: ")
@@ -69,6 +70,7 @@ class Pixela():
             self.graph_color = input("Enter graph color\n\t[shibafu (green), \
 momiji (red), sora (blue),\n\t \
 ichou (yellow), ajisai (purple) and kuro (black)] :: ")
+            self.graph_timezone = "Asia/Kolkata"
             self.graph_inited = True
         
 
@@ -79,7 +81,8 @@ ichou (yellow), ajisai (purple) and kuro (black)] :: ")
             "name": self.graph_name,
             "unit": self.graph_unit,
             "type": self.graph_type,
-            "color": self.graph_color
+            "color": self.graph_color,
+            "timezone": self.graph_timezone
         }
         response = rq.post(url=f"{self.pixela_endpoint}/{self.username}/graphs", json=graph_params, headers=self.headers)
 
@@ -97,6 +100,7 @@ ichou (yellow), ajisai (purple) and kuro (black)] :: ")
         self.graph_init()
         svg_params = {
             "appearance": "dark"
+            # "mode": input("svg mode :: ")
         }
         response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}.svg", params=svg_params)
 
@@ -162,7 +166,8 @@ ichou (yellow), ajisai (purple) and kuro (black)] :: ")
             "quantity": input("pixel quantity :: ")
         }
         response = rq.put(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/add", json=pixel_data, headers=self.headers)
-        
+        print(response)
+
         if response.json()["isSuccess"]:
             print(f"~PIXEL UPDATED SUCCESSFULLY~")
         else:
