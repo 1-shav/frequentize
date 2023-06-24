@@ -4,14 +4,24 @@ from datetime import datetime
 class Pixela():
 
     def __init__(self):
-        self.username = input("Enter your username :: ")
-        self.token = input("Enter your token :: ")
-        self.graph_id = "testual1"
+        if "y" in (use_predef:=input("use predefined values? :: ").lower()):
+            self.username = "usernamwa"
+            self.token = "192837465"
+
+            self.graph_id = "testinf"
+            self.graph_name = "giggles/day"
+            self.graph_unit = "gilgges"
+            self.graph_type = "int"
+            self.graph_color = "ajisai"
+            self.graph_inited = True
+        else:
+            self.username = input("Enter your username :: ")
+            self.token = input("Enter your token :: ")
+            self.graph_inited = False
         self.pixela_endpoint = "https://pixe.la/v1/users"
         self.headers = {
             "X-USER-TOKEN": self.token
         }
-        self.graph_inited = False
 
 
     def retry(self, function):
