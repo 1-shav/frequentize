@@ -1,6 +1,10 @@
 import requests as rq
 from datetime import datetime
 import json
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+
+
 
 class Pixela():
 
@@ -143,21 +147,31 @@ ichou (yellow), ajisai (purple) and kuro (black)] :: ")
                 print(f"~GRAPH CREATION FAILED~\n\tERROR MESSAGE :: {response.json()['message']}")
 
 
-    def graph_get_svg(self):
+    def graph_get_svg(self, line_mode:bool):
+
         self.graph_init()
         svg_params = {
-            "appearance": "dark"
-            # "mode": input("svg mode :: ")
+            "appearance": "dark",
         }
+        if line_mode:
+            svg_params["mode"] = "line"
+
         response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}.svg", params=svg_params)
 
         if response.status_code == 200:
             svg_content = response.content
 
-            with open(f"{self.graph_id}.svg", "wb") as file:
-                file.write(svg_content)
+            if line_mode:
+                with open(fr"{self.graph_id}_line.svg", "wb") as file:
+                    file.write(svg_content)
+                print(f"~GRAPH SVG CREATED SUCCESSFULLY~\n\tGRAPH SVG FILE :: {self.graph_id}.svg")
+            else:
+                with open(fr"{self.graph_id}.svg", "wb") as file:
+                    file.write(svg_content)
+                print(f"~GRAPH SVG CREATED SUCCESSFULLY~\n\tGRAPH SVG FILE :: {self.graph_id}.svg")
+
+
         
-            print(f"~GRAPH SVG CREATED SUCCESSFULLY~\n\tGRAPH SVG FILE :: {self.graph_id}.svg")
 
 
     def graph_delete(self):
@@ -181,9 +195,11 @@ ichou (yellow), ajisai (purple) and kuro (black)] :: ")
         response = rq.get(url=f"{self.pixela_endpoint}/{self.username}/graphs/{self.graph_id}/stats")
 
         if response.status_code == 200:
-            print(f"~GRAPH STATS SUCCESSFULLY FOUND~\n\tGRAPH STATS :: {response.json()}")
+            # print(f"~GRAPH STATS SUCCESSFULLY FOUND~\n\tGRAPH STATS :: {response.json()}")
+            return response.json()
         else:
-            print(f"~GRAPH STATS NOT FOUND~\n\tERROR MESSAGE :: {response.json()['message']}")
+            # print(f"~GRAPH STATS NOT FOUND~\n\tERROR MESSAGE :: {response.json()['message']}")
+            None
 
 
     def pixel_update(self):
@@ -265,6 +281,8 @@ if __name__ == "__main__":
             break
         elif wanna in ["fns", "show fns", "available fns", "get_fns"]:
             print(f"~AVAILABLE FUNCTIONS~\n\t{available_fns}")
+        elif wanna == "4":
+            pixela.graph_get_svg(line_mode=input("Enter line mode [True/False] :: ").lower()=="true")
         elif (fnc:=available_fns.get(wanna, "null"))!="null":
             getattr(pixela, fnc)()
         else:
