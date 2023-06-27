@@ -1,28 +1,75 @@
 import requests as rq
 from datetime import datetime
+import json
 
 class Pixela():
 
     def __init__(self):
-        if "y" in (use_predef:=input("use predefined values? :: ").lower()):
-            self.username = "usernamwa"
-            self.token = "192837465"
+        # if "y" in (use_predef:=input("use predefined values? :: ").lower()):
+        #     self.username = "usernamwa"
+        #     self.token = "192837465"
 
-            self.graph_id = "testinf"
-            self.graph_name = "giggles/day"
-            self.graph_unit = "gilgges"
-            self.graph_type = "int"
-            self.graph_color = "ajisai"
-            self.graph_timezone = "Asia/Kolkata"
-            self.graph_inited = True
+        #     self.graph_id = "testinf"
+        #     self.graph_name = "giggles/day"
+        #     self.graph_unit = "gilgges"
+        #     self.graph_type = "int"
+        #     self.graph_color = "ajisai"
+        #     self.graph_timezone = "Asia/Kolkata"
+        #     self.graph_inited = True
+        # else:
+        #     self.username = input("Enter your username :: ")
+        #     self.token = input("Enter your token :: ")
+        self.graph_inited = False
+        self.pixela_endpoint = "https://pixe.la/v1/users"
+        if "y" in (use_predef:=input("use predefined values? :: ").lower()):
+            if not self.graph_inited:
+                self.get_credentials()
         else:
             self.username = input("Enter your username :: ")
             self.token = input("Enter your token :: ")
-            self.graph_inited = False
-        self.pixela_endpoint = "https://pixe.la/v1/users"
+            self.graph_init()
+
         self.headers = {
             "X-USER-TOKEN": self.token
         }
+
+
+    def get_credentials(self):
+        if not self.graph_inited:
+            try:
+                with open("data.json", "r") as file:
+                    data = json.load(file)
+                    self.username = data["username"]
+                    self.token = data["token"]
+
+                    self.graph_id = list(data["graphs"].keys())[0]
+                    self.graph_name = data["graphs"][self.graph_id]["name"]
+                    self.graph_unit = data["graphs"][self.graph_id]["unit"]
+                    self.graph_type = data["graphs"][self.graph_id]["type"]
+                    self.graph_color = data["graphs"][self.graph_id]["color"]
+                    self.graph_timezone = data["graphs"][self.graph_id]["timezone"]
+                    self.graph_inited = True
+            except FileNotFoundError:
+                self.username = input("Enter your username :: ")
+                self.token = input("Enter your token :: ")
+                self.graph_init()
+                new_data = {
+                    "username":self.username,
+                    "token":self.token,
+                    "graphs":{
+                        self.graph_id:{
+                            "name":self.graph_name,
+                            "unit":self.graph_unit,
+                            "type":self.graph_type,
+                            "color":self.graph_color,
+                            "timezone":self.graph_timezone
+                        }
+                    }
+                }
+                with open("data.json", "w") as file:
+                    json.dump(new_data, file, indent=4)
+            
+
 
 
     def retry(self, function):
